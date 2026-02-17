@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Random Racking System</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="theme-color" content="#0f1019" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link href="https://fonts.cdnfonts.com/css/lemon-milk" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0f1019;
+      --bg-secondary: #1a1b2e;
+      --bg-card: #1e2035;
+      --accent-blue: #3b82f6;
+      --accent-blue-glow: rgba(59, 130, 246, 0.3);
+      --text-primary: #ffffff;
+      --text-secondary: #8b8fa3;
+      --text-muted: #555770;
+      --border-color: #2a2d45;
+      --felt-color: #3a4a3a;
+      --felt-dark: #2d3a2d;
+      --rail-color: #7a7d8e;
+      --rail-dark: #55586a;
+      --nav-bg: #161828;
+      --shuffle-gradient: linear-gradient(135deg, #3b82f6, #2563eb);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 20px;
+      background: var(--bg-primary);
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-family: 'LEMON MILK', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* ===== Content Area ===== */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 16px;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ===== Tabs ===== */
+    .tabs {
+      display: flex;
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 4px;
+      width: 100%;
+      max-width: 320px;
+      flex-shrink: 0;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      background: transparent;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .tab.active {
+      background: var(--accent-blue);
+      color: #fff;
+      box-shadow: 0 2px 12px var(--accent-blue-glow);
+    }
+
+    .tab:not(.active):active {
+      background: rgba(255,255,255,0.05);
+    }
+
+    /* ===== Rack Display ===== */
+    .rack-area {
+      flex: 1;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 0;
+      min-height: 0;
+    }
+
+    .rack-surface {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1.1;
+      max-height: 100%;
+      background: linear-gradient(180deg, #3d4d3d 0%, #2d3a2d 50%, #3a4a3a 100%);
+      border-radius: 20px;
+      border: 6px solid var(--rail-color);
+      box-shadow:
+        inset 0 0 40px rgba(0,0,0,0.4),
+        0 8px 32px rgba(0,0,0,0.5),
+        0 0 0 2px var(--rail-dark);
+      overflow: hidden;
+    }
+
+    .rack-surface::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .balls-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .balls-wrapper {
+      position: relative;
+    }
+
+    /* ===== Ball ===== */
+    .ball {
+      position: absolute;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      transform: translate(-50%, -50%);
+      box-shadow:
+        inset -3px -3px 6px rgba(0,0,0,0.5),
+        inset 3px 3px 6px rgba(255,255,255,0.25),
+        0 4px 10px rgba(0,0,0,0.5);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: default;
+      z-index: 10;
+    }
+
+    .ball::after {
+      content: '';
+      position: absolute;
+      width: 35%;
+      height: 20%;
+      background: radial-gradient(ellipse, rgba(255,255,255,0.5) 0%, transparent 100%);
+      top: 12%;
+      left: 22%;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .ball.striped {
+      overflow: hidden;
+    }
+
+    .ball.striped::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      bottom: 20%;
+      left: -5%;
+      right: -5%;
+      background: #fff;
+      z-index: 0;
+    }
+
+    .ball.striped .ball-number {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ball-number {
+      position: relative;
+      z-index: 2;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @keyframes dropIn {
+      0% {
+        transform: translate(-50%, calc(-50% - 60px)) scale(0.4);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .ball.animate {
+      animation: dropIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* ===== Shuffle Button ===== */
+    .shuffle-section {
+      flex-shrink: 0;
+      width: 100%;
+      max-width: 320px;
+      padding: 8px 0 12px;
+    }
+
+    .shuffle-btn {
+      width: 100%;
+      padding: 15px 24px;
+      border: none;
+      border-radius: 14px;
+      background: var(--shuffle-gradient);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 16px var(--accent-blue-glow);
+      letter-spacing: 0.5px;
+    }
+
+    .shuffle-btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 2px 8px var(--accent-blue-glow);
+    }
+
+    .shuffle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ===== Responsive ===== */
+    @media (min-width: 768px) {
+      .content {
+        padding: 16px 24px;
+      }
+      .rack-area {
+        max-width: 480px;
+      }
+      .tabs {
+        max-width: 360px;
+      }
+      .shuffle-section {
+        max-width: 360px;
+      }
+    }
+
+    @media (max-height: 600px) {
+      .header { padding: 10px 16px; }
+      .content { padding: 4px 12px; }
+      .shuffle-section { padding: 4px 0 8px; }
+      .shuffle-btn { padding: 12px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-title">Random Racking System</div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Game Type Tabs -->
+    <div class="tabs">
+      <button class="tab active" id="tab9" data-type="nine">9-Ball</button>
+      <button class="tab" id="tab10" data-type="ten">10-Ball</button>
+    </div>
+
+    <!-- Rack Display -->
+    <div class="rack-area">
+      <div class="rack-surface" id="rackSurface">
+        <div class="balls-container">
+          <div class="balls-wrapper" id="ballsWrapper"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shuffle Button -->
+    <div class="shuffle-section">
+      <button class="shuffle-btn" id="shuffleBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+        </svg>
+        Shuffle
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /* ===== Ball Data ===== */
+    const BALL_COLORS = {
+      1:  { bg: '#FFD700', text: '#000', stripe: false },
+      2:  { bg: '#0066FF', text: '#FFF', stripe: false },
+      3:  { bg: '#FF0000', text: '#FFF', stripe: false },
+      4:  { bg: '#FF69B4', text: '#FFF', stripe: false },
+      5:  { bg: '#FF8C00', text: '#000', stripe: false },
+      6:  { bg: '#008B45', text: '#FFF', stripe: false },
+      7:  { bg: '#8B1A1A', text: '#FFF', stripe: false },
+      8:  { bg: '#111111', text: '#FFF', stripe: false },
+      9:  { bg: '#FFD700', text: '#000', stripe: true },
+      10: { bg: '#0066FF', text: '#FFF', stripe: true },
+    };
+
+    /* ===== State ===== */
+    let currentType = 'nine';
+    let ballSize = 44;
+
+    const tab9 = document.getElementById('tab9');
+    const tab10 = document.getElementById('tab10');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    const ballsWrapper = document.getElementById('ballsWrapper');
+    const rackSurface = document.getElementById('rackSurface');
+
+    /* ===== Shuffle (Fisher-Yates) ===== */
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    /* ===== Generate Ball Order (rule-compliant) ===== */
+    function generateOrder(type) {
+      if (type === 'nine') {
+        // 9-ball: #1 at apex, #9 in center, rest random
+        const others = [2, 3, 4, 5, 6, 7, 8];
+        shuffle(others);
+        return [1, others[0], others[1], others[2], 9, others[3], others[4], others[5], others[6]];
+      } else {
+        // 10-ball: #1 at apex, #10 in center, rest random
+        const others = [2, 3, 4, 5, 6, 7, 8, 9];
+        shuffle(others);
+        return [1, others[0], others[1], others[2], 10, others[3], others[4], others[5], others[6], others[7]];
+      }
+    }
+
+    /* ===== Calculate Positions (diamond for 9, triangle for 10) ===== */
+    function getPositions(type, size) {
+      const positions = [];
+      const gap = size * 1.08;
+
+      if (type === 'nine') {
+        // Diamond: 1-2-3-2-1
+        const vGap = gap * 0.87;
+        const rows = [
+          [0],
+          [-0.5, 0.5],
+          [-1, 0, 1],
+          [-0.5, 0.5],
+          [0],
+        ];
+        rows.forEach((cols, rowIdx) => {
+          const y = (rowIdx - 2) * vGap;
+          cols.forEach(cx => {
+            positions.push({ x: cx * gap, y });
+          });
+        });
+      } else {
+        // Triangle: 1-2-3-4
+        const vGap = gap * 0.87;
+        const rows = [
+          [0],
+          [-0.5, 0.5],
+          [-1, 0, 1],
+          [-1.5, -0.5, 0.5, 1.5],
+        ];
+        rows.forEach((cols, rowIdx) => {
+          const y = (rowIdx - 1.5) * vGap;
+          cols.forEach(cx => {
+            positions.push({ x: cx * gap, y });
+          });
+        });
+      }
+      return positions;
+    }
+
+    /* ===== Compute Ball Size Based on Container ===== */
+    function computeBallSize() {
+      const rect = rackSurface.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+
+      let size;
+      if (currentType === 'nine') {
+        size = Math.min(w / 5.5, h / 6.5);
+      } else {
+        size = Math.min(w / 6.5, h / 6);
+      }
+
+      return Math.max(28, Math.min(size, 80));
+    }
+
+    /* ===== Create Ball Element ===== */
+    function createBall(num, pos, size, delay) {
+      const info = BALL_COLORS[num];
+      const ball = document.createElement('div');
+      ball.className = 'ball' + (info.stripe ? ' striped' : '');
+
+      ball.style.width = size + 'px';
+      ball.style.height = size + 'px';
+      ball.style.left = pos.x + 'px';
+      ball.style.top = pos.y + 'px';
+      ball.style.background = info.bg;
+      ball.style.opacity = '0';
+
+      // Number circle
+      const numberSize = Math.max(size * 0.44, 14);
+      const fontSize = Math.max(size * 0.28, 10);
+
+      const numEl = document.createElement('span');
+      numEl.className = 'ball-number';
+      numEl.textContent = num;
+      numEl.style.width = numberSize + 'px';
+      numEl.style.height = numberSize + 'px';
+      numEl.style.fontSize = fontSize + 'px';
+      numEl.style.color = '#000';
+      numEl.style.fontWeight = '800';
+
+      ball.appendChild(numEl);
+
+      // Animate in
+      setTimeout(() => {
+        ball.classList.add('animate');
+      }, delay);
+
+      return ball;
+    }
+
+    /* ===== Render Rack ===== */
+    function renderRack() {
+      ballsWrapper.innerHTML = '';
+
+      ballSize = computeBallSize();
+      const order = generateOrder(currentType);
+      const positions = getPositions(currentType, ballSize);
+
+      order.forEach((num, idx) => {
+        const ball = createBall(num, positions[idx], ballSize, idx * 40);
+        ballsWrapper.appendChild(ball);
+      });
+
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate(15);
+      }
+    }
+
+    /* ===== Tab Switching ===== */
+    function setActiveTab(type) {
+      currentType = type;
+      tab9.classList.toggle('active', type === 'nine');
+      tab10.classList.toggle('active', type === 'ten');
+      renderRack();
+    }
+
+    tab9.addEventListener('click', () => setActiveTab('nine'));
+    tab10.addEventListener('click', () => setActiveTab('ten'));
+    shuffleBtn.addEventListener('click', () => renderRack());
+
+    /* ===== Responsive Resize ===== */
+    const ro = new ResizeObserver(() => {
+      ballSize = computeBallSize();
+      // Re-render without animation on resize
+      const balls = ballsWrapper.querySelectorAll('.ball');
+      if (balls.length === 0) return;
+
+      const positions = getPositions(currentType, ballSize);
+      const gap = ballSize * 1.08;
+
+      balls.forEach((ball, idx) => {
+        if (idx < positions.length) {
+          ball.style.width = ballSize + 'px';
+          ball.style.height = ballSize + 'px';
+          ball.style.left = positions[idx].x + 'px';
+          ball.style.top = positions[idx].y + 'px';
+
+          const numEl = ball.querySelector('.ball-number');
+          if (numEl) {
+            const numberSize = Math.max(ballSize * 0.44, 14);
+            const fontSize = Math.max(ballSize * 0.28, 10);
+            numEl.style.width = numberSize + 'px';
+            numEl.style.height = numberSize + 'px';
+            numEl.style.fontSize = fontSize + 'px';
+          }
+        }
+      });
+    });
+    ro.observe(rackSurface);
+
+    /* ===== Init ===== */
+    document.addEventListener('DOMContentLoaded', () => {
+      renderRack();
+    });
+
+    /* ===== PWA Registration ===== */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(() => console.log('SW registered'))
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
