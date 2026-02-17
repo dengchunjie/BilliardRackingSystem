@@ -116,6 +116,49 @@
       background: rgba(255,255,255,0.05);
     }
 
+    /* ===== Position Options ===== */
+    .options-section {
+      flex-shrink: 0;
+      width: 100%;
+      max-width: 320px;
+      margin-top: 10px;
+    }
+
+    .options-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .option-card {
+      flex: 1;
+      max-width: 96px;
+      aspect-ratio: 1;
+      padding: 8px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 2px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .option-card.active {
+      border-color: var(--accent-blue);
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    .option-card:active {
+      transform: scale(0.95);
+    }
+
+    .option-card svg {
+      width: 100%;
+      height: 100%;
+    }
+
     /* ===== Rack Display ===== */
     .rack-area {
       flex: 1;
@@ -201,8 +244,8 @@
     .ball.striped::before {
       content: '';
       position: absolute;
-      top: 20%;
-      bottom: 20%;
+      top: 25%;
+      bottom: 25%;
       left: -5%;
       right: -5%;
       background: #fff;
@@ -285,10 +328,7 @@
       .rack-area {
         max-width: 480px;
       }
-      .tabs {
-        max-width: 360px;
-      }
-      .shuffle-section {
+      .tabs, .shuffle-section, .options-section {
         max-width: 360px;
       }
     }
@@ -298,6 +338,8 @@
       .content { padding: 4px 12px; }
       .shuffle-section { padding: 4px 0 8px; }
       .shuffle-btn { padding: 12px 20px; }
+      .options-section { margin-top: 6px; }
+      .option-card { max-width: 80px; padding: 6px; }
     }
   </style>
 </head>
@@ -314,6 +356,89 @@
     <div class="tabs">
       <button class="tab active" id="tab9" data-type="nine">9-Ball</button>
       <button class="tab" id="tab10" data-type="ten">10-Ball</button>
+    </div>
+
+    <!-- Position Options -->
+    <div class="options-section">
+      <!-- 9-Ball: #2 position options -->
+      <div class="options-row" id="options9">
+        <!-- Option 1: Random (all positions) -->
+        <div class="option-card active" data-option="random">
+          <svg viewBox="0 0 40 52">
+            <circle cx="20" cy="6" r="4" fill="#444"/>
+            <circle cx="14" cy="16" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="26" cy="16" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="8" cy="26" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="20" cy="26" r="4" fill="#444"/>
+            <circle cx="32" cy="26" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="14" cy="36" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="26" cy="36" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="20" cy="46" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <!-- Option 2: Sides + Bottom -->
+        <div class="option-card" data-option="sides">
+          <svg viewBox="0 0 40 52">
+            <circle cx="20" cy="6" r="4" fill="#444"/>
+            <circle cx="14" cy="16" r="4" fill="#444"/>
+            <circle cx="26" cy="16" r="4" fill="#444"/>
+            <circle cx="8" cy="26" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="20" cy="26" r="4" fill="#444"/>
+            <circle cx="32" cy="26" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="14" cy="36" r="4" fill="#444"/>
+            <circle cx="26" cy="36" r="4" fill="#444"/>
+            <circle cx="20" cy="46" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <!-- Option 3: Fixed Bottom -->
+        <div class="option-card" data-option="bottom">
+          <svg viewBox="0 0 40 52">
+            <circle cx="20" cy="6" r="4" fill="#444"/>
+            <circle cx="14" cy="16" r="4" fill="#444"/>
+            <circle cx="26" cy="16" r="4" fill="#444"/>
+            <circle cx="8" cy="26" r="4" fill="#444"/>
+            <circle cx="20" cy="26" r="4" fill="#444"/>
+            <circle cx="32" cy="26" r="4" fill="#444"/>
+            <circle cx="14" cy="36" r="4" fill="#444"/>
+            <circle cx="26" cy="36" r="4" fill="#444"/>
+            <circle cx="20" cy="46" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 10-Ball: #2 #3 position options -->
+      <div class="options-row" id="options10" style="display:none">
+        <!-- Option 1: Random -->
+        <div class="option-card active" data-option="random">
+          <svg viewBox="0 0 52 44">
+            <circle cx="26" cy="6" r="4" fill="#444"/>
+            <circle cx="20" cy="16" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="32" cy="16" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="14" cy="26" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="26" cy="26" r="4" fill="#444"/>
+            <circle cx="38" cy="26" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="8" cy="36" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="20" cy="36" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="32" cy="36" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="44" cy="36" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <!-- Option 2: Bottom corners only -->
+        <div class="option-card" data-option="outer">
+          <svg viewBox="0 0 52 44">
+            <circle cx="26" cy="6" r="4" fill="#444"/>
+            <circle cx="20" cy="16" r="4" fill="#444"/>
+            <circle cx="32" cy="16" r="4" fill="#444"/>
+            <circle cx="14" cy="26" r="4" fill="#444"/>
+            <circle cx="26" cy="26" r="4" fill="#444"/>
+            <circle cx="38" cy="26" r="4" fill="#444"/>
+            <circle cx="8" cy="36" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="20" cy="36" r="4" fill="#444"/>
+            <circle cx="32" cy="36" r="4" fill="#444"/>
+            <circle cx="44" cy="36" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
     </div>
 
     <!-- Rack Display -->
@@ -354,12 +479,16 @@
     /* ===== State ===== */
     let currentType = 'nine';
     let ballSize = 44;
+    let nineBallOption = 'random';   // 'random' | 'sides' | 'bottom'
+    let tenBallOption = 'random';    // 'random' | 'outer'
 
     const tab9 = document.getElementById('tab9');
     const tab10 = document.getElementById('tab10');
     const shuffleBtn = document.getElementById('shuffleBtn');
     const ballsWrapper = document.getElementById('ballsWrapper');
     const rackSurface = document.getElementById('rackSurface');
+    const options9 = document.getElementById('options9');
+    const options10 = document.getElementById('options10');
 
     /* ===== Shuffle (Fisher-Yates) ===== */
     function shuffle(arr) {
@@ -371,17 +500,84 @@
     }
 
     /* ===== Generate Ball Order (rule-compliant) ===== */
+    /*
+     * 9-Ball Diamond positions:
+     *     [0]          apex (#1)
+     *    [1][2]        row 1
+     *   [3][4][5]      row 2 (#9 at 4)
+     *    [6][7]        row 3
+     *     [8]          bottom
+     *
+     * 10-Ball Triangle positions:
+     *     [0]          apex (#1)
+     *    [1][2]        row 1
+     *   [3][4][5]      row 2 (#10 at 4)
+     *  [6][7][8][9]    row 3
+     */
     function generateOrder(type) {
       if (type === 'nine') {
-        // 9-ball: #1 at apex, #9 in center, rest random
-        const others = [2, 3, 4, 5, 6, 7, 8];
-        shuffle(others);
-        return [1, others[0], others[1], others[2], 9, others[3], others[4], others[5], others[6]];
+        const result = new Array(9).fill(0);
+        result[0] = 1;  // #1 at apex
+        result[4] = 9;  // #9 at center
+
+        if (nineBallOption === 'random') {
+          // #2 can go anywhere
+          const others = [2, 3, 4, 5, 6, 7, 8];
+          shuffle(others);
+          let oi = 0;
+          for (let i = 0; i < 9; i++) {
+            if (result[i] === 0) result[i] = others[oi++];
+          }
+        } else if (nineBallOption === 'sides') {
+          // #2 at positions 3 (left), 5 (right), or 8 (bottom)
+          const allowed = [3, 5, 8];
+          result[allowed[Math.floor(Math.random() * allowed.length)]] = 2;
+          const others = [3, 4, 5, 6, 7, 8];
+          shuffle(others);
+          let oi = 0;
+          for (let i = 0; i < 9; i++) {
+            if (result[i] === 0) result[i] = others[oi++];
+          }
+        } else {
+          // #2 fixed at bottom (position 8)
+          result[8] = 2;
+          const others = [3, 4, 5, 6, 7, 8];
+          shuffle(others);
+          let oi = 0;
+          for (let i = 0; i < 9; i++) {
+            if (result[i] === 0) result[i] = others[oi++];
+          }
+        }
+
+        return result;
       } else {
-        // 10-ball: #1 at apex, #10 in center, rest random
-        const others = [2, 3, 4, 5, 6, 7, 8, 9];
-        shuffle(others);
-        return [1, others[0], others[1], others[2], 10, others[3], others[4], others[5], others[6], others[7]];
+        const result = new Array(10).fill(0);
+        result[0] = 1;   // #1 at apex
+        result[4] = 10;  // #10 at center
+
+        if (tenBallOption === 'random') {
+          // #2 and #3 can go anywhere
+          const others = [2, 3, 4, 5, 6, 7, 8, 9];
+          shuffle(others);
+          let oi = 0;
+          for (let i = 0; i < 10; i++) {
+            if (result[i] === 0) result[i] = others[oi++];
+          }
+        } else {
+          // #2 and #3 at bottom corners: positions 6 and 9
+          const corners = [6, 9];
+          shuffle(corners);
+          result[corners[0]] = 2;
+          result[corners[1]] = 3;
+          const others = [4, 5, 6, 7, 8, 9];
+          shuffle(others);
+          let oi = 0;
+          for (let i = 0; i < 10; i++) {
+            if (result[i] === 0) result[i] = others[oi++];
+          }
+        }
+
+        return result;
       }
     }
 
@@ -391,7 +587,6 @@
       const gap = size * 1.08;
 
       if (type === 'nine') {
-        // Diamond: 1-2-3-2-1
         const vGap = gap * 0.87;
         const rows = [
           [0],
@@ -407,7 +602,6 @@
           });
         });
       } else {
-        // Triangle: 1-2-3-4
         const vGap = gap * 0.87;
         const rows = [
           [0],
@@ -454,7 +648,6 @@
       ball.style.background = info.bg;
       ball.style.opacity = '0';
 
-      // Number circle
       const numberSize = Math.max(size * 0.44, 14);
       const fontSize = Math.max(size * 0.28, 10);
 
@@ -469,7 +662,6 @@
 
       ball.appendChild(numEl);
 
-      // Animate in
       setTimeout(() => {
         ball.classList.add('animate');
       }, delay);
@@ -490,7 +682,6 @@
         ballsWrapper.appendChild(ball);
       });
 
-      // Haptic feedback
       if (navigator.vibrate) {
         navigator.vibrate(15);
       }
@@ -501,6 +692,8 @@
       currentType = type;
       tab9.classList.toggle('active', type === 'nine');
       tab10.classList.toggle('active', type === 'ten');
+      options9.style.display = type === 'nine' ? 'flex' : 'none';
+      options10.style.display = type === 'ten' ? 'flex' : 'none';
       renderRack();
     }
 
@@ -508,15 +701,32 @@
     tab10.addEventListener('click', () => setActiveTab('ten'));
     shuffleBtn.addEventListener('click', () => renderRack());
 
+    /* ===== Option Card Switching ===== */
+    options9.addEventListener('click', (e) => {
+      const card = e.target.closest('.option-card');
+      if (!card) return;
+      options9.querySelectorAll('.option-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      nineBallOption = card.dataset.option;
+      renderRack();
+    });
+
+    options10.addEventListener('click', (e) => {
+      const card = e.target.closest('.option-card');
+      if (!card) return;
+      options10.querySelectorAll('.option-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      tenBallOption = card.dataset.option;
+      renderRack();
+    });
+
     /* ===== Responsive Resize ===== */
     const ro = new ResizeObserver(() => {
       ballSize = computeBallSize();
-      // Re-render without animation on resize
       const balls = ballsWrapper.querySelectorAll('.ball');
       if (balls.length === 0) return;
 
       const positions = getPositions(currentType, ballSize);
-      const gap = ballSize * 1.08;
 
       balls.forEach((ball, idx) => {
         if (idx < positions.length) {
