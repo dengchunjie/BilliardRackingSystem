@@ -657,7 +657,7 @@
     }
 
     /* ===== Create Ball Element ===== */
-    function createBall(num, pos, size, delay) {
+    function createBall(num, pos, size, delay, isFixed) {
       const info = BALL_COLORS[num];
       const ball = document.createElement('div');
       ball.className = 'ball' + (info.stripe ? ' striped' : '');
@@ -667,7 +667,13 @@
       ball.style.left = pos.x + 'px';
       ball.style.top = pos.y + 'px';
       ball.style.background = info.bg;
-      ball.style.opacity = '0';
+
+      if (isFixed) {
+        // Fixed balls: show immediately, no animation
+        ball.style.opacity = '1';
+      } else {
+        ball.style.opacity = '0';
+      }
 
       const numberSize = Math.max(size * 0.44, 14);
       const fontSize = Math.max(size * 0.28, 10);
@@ -683,11 +689,27 @@
 
       ball.appendChild(numEl);
 
-      setTimeout(() => {
-        ball.classList.add('animate');
-      }, delay);
+      if (!isFixed) {
+        setTimeout(() => {
+          ball.classList.add('animate');
+        }, delay);
+      }
 
       return ball;
+    }
+
+    /* ===== Determine which balls are fixed ===== */
+    function getFixedBalls() {
+      if (currentType === 'nine') {
+        const fixed = new Set([1, 9]);
+        if (nineBallOption === 'bottom') {
+          fixed.add(2);
+        }
+        return fixed;
+      } else {
+        const fixed = new Set([1, 10]);
+        return fixed;
+      }
     }
 
     /* ===== Render Rack ===== */
@@ -697,9 +719,15 @@
       ballSize = computeBallSize();
       const order = generateOrder(currentType);
       const positions = getPositions(currentType, ballSize);
+      const fixedBalls = getFixedBalls();
 
+      let animDelay = 0;
       order.forEach((num, idx) => {
-        const ball = createBall(num, positions[idx], ballSize, idx * 40);
+        const isFixed = fixedBalls.has(num);
+        const ball = createBall(num, positions[idx], ballSize, isFixed ? 0 : animDelay, isFixed);
+        if (!isFixed) {
+          animDelay += 40;
+        }
         ballsWrapper.appendChild(ball);
       });
 
