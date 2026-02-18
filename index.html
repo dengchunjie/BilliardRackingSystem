@@ -268,19 +268,26 @@
       font-variant-numeric: tabular-nums;
     }
 
-    @keyframes dropIn {
+    @keyframes rollIn {
       0% {
-        transform: translate(-50%, calc(-50% - 60px)) scale(0.4);
+        transform: translate(-50%, -50%) scale(0) rotate(-180deg);
         opacity: 0;
       }
+      50% {
+        transform: translate(-50%, -50%) scale(1.15) rotate(10deg);
+        opacity: 1;
+      }
+      75% {
+        transform: translate(-50%, -50%) scale(0.95) rotate(-5deg);
+      }
       100% {
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
         opacity: 1;
       }
     }
 
     .ball.animate {
-      animation: dropIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation: rollIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
     /* ===== Shuffle Button ===== */
@@ -340,6 +347,17 @@
       .shuffle-btn { padding: 12px 20px; }
       .options-section { margin-top: 6px; }
       .option-card { max-width: 80px; padding: 6px; }
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      flex-shrink: 0;
+      text-align: center;
+      padding: 6px 16px 10px;
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
     }
   </style>
 </head>
@@ -460,6 +478,9 @@
       </button>
     </div>
   </div>
+
+  <!-- Footer -->
+  <div class="footer">&copy; 2026 Deng Chunjie. All rights reserved.</div>
 
   <script>
     /* ===== Ball Data ===== */
