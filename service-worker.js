@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rack-gen-v1';
+const CACHE_NAME = 'rack-gen-v4';
 const STATIC_ASSETS = [
   './',
   './index.html',
